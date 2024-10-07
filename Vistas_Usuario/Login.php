@@ -6,121 +6,9 @@
     <title>Struct Migraciones - Login/Register</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f0f2f5;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .auth-card {
-            max-width: 400px;
-            width: 100%;
-            border-radius: 20px;
-            padding: 40px;
-            background-color: white;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .auth-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .form-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .form-header h3 {
-            font-size: 24px;
-            margin: 0;
-            color: #007DFF;
-            font-weight: 600;
-        }
-
-        .form-header p {
-            color: #777;
-            margin-top: 5px;
-        }
-
-        .form-control {
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            font-size: 14px;
-            background-color: #f9f9f9;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            background-color: #fff;
-            border-color: #007DFF;
-            box-shadow: 0 0 0 2px rgba(0, 125, 255, 0.1);
-        }
-
-        .btn-primary, .btn-success {
-            padding: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background-color: #007DFF;
-            border-color: #007DFF;
-        }
-
-        .btn-primary:hover {
-            background-color: #005bb5;
-            border-color: #005bb5;
-        }
-
-        .btn-success {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-
-        .btn-success:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
-
-        .form-footer {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .form-footer a {
-            color: #007DFF;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .form-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .input-group-text {
-            border-radius: 10px 0 0 10px;
-            background-color: #f0f2f5;
-            border: 1px solid #ddd;
-        }
-
-        .auth-card:hover {
-            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.15);
-        }
-    </style>
+    <link href="../Assets/css/login_styles.css" rel="stylesheet">
+    <!-- SweetAlert CSS & JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -131,32 +19,39 @@
             <p id="form-description">Por favor, inicia sesión para continuar</p>
         </div>
 
+        <!-- Alert success message (hidden by default) -->
+        <div id="register-success" class="alert alert-success" role="alert" style="display:none;">
+            ¡Usuario registrado correctamente! Ahora puedes iniciar sesión.
+        </div>
+
         <!-- Login Form -->
-        <form id="login-form">
+        <form id="login-form" action="../Backend/auth.php" method="POST" onsubmit="handleLogin(event)">
+            <input type="hidden" name="action" value="login">
             <div class="mb-3">
                 <label for="login-email" class="form-label">Correo Electrónico</label>
-                <input type="email" class="form-control" id="login-email" placeholder="Ingresa tu correo" required>
+                <input type="email" class="form-control" name="correo_electronico" id="login-email" placeholder="Ingresa tu correo" required>
             </div>
             <div class="mb-3">
                 <label for="login-password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="login-password" placeholder="Ingresa tu contraseña" required>
+                <input type="password" class="form-control" name="contrasena" id="login-password" placeholder="Ingresa tu contraseña" required>
             </div>
             <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
         </form>
 
-        <!-- Register Form (hidden by default) -->
-        <form id="register-form" style="display: none;" onsubmit="return validateRegisterForm()">
+        <!-- Register Form -->
+        <form id="register-form" action="../Backend/auth.php" method="POST" style="display: none;" onsubmit="handleRegister(event)">
+            <input type="hidden" name="action" value="register">
             <div class="mb-3">
                 <label for="register-name" class="form-label">Nombre Completo</label>
-                <input type="text" class="form-control" id="register-name" placeholder="Ingresa tu nombre completo" required>
+                <input type="text" class="form-control" name="nombre_completo" id="register-name" placeholder="Ingresa tu nombre completo" required>
             </div>
             <div class="mb-3">
                 <label for="register-email" class="form-label">Correo Electrónico</label>
-                <input type="email" class="form-control" id="register-email" placeholder="Ingresa tu correo" required>
+                <input type="email" class="form-control" name="correo_electronico" id="register-email" placeholder="Ingresa tu correo" required>
             </div>
             <div class="mb-3">
                 <label for="register-password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="register-password" placeholder="Crea una contraseña" required>
+                <input type="password" class="form-control" name="contrasena" id="register-password" placeholder="Crea una contraseña" required>
             </div>
             <div class="mb-3">
                 <label for="register-confirm-password" class="form-label">Confirmar Contraseña</label>
@@ -164,7 +59,7 @@
             </div>
             <div class="mb-3">
                 <label for="register-country" class="form-label">País</label>
-                <select class="form-control" id="register-country" required>
+                <select class="form-control" name="pais" id="register-country" required>
                     <option value="" selected disabled>Selecciona tu país</option>
                 </select>
             </div>
@@ -172,9 +67,10 @@
                 <label for="register-phone" class="form-label">Número de Teléfono</label>
                 <div class="input-group">
                     <span class="input-group-text" id="phone-addon">+502</span>
-                    <input type="tel" class="form-control" id="register-phone" placeholder="Número de teléfono" required>
+                    <input type="tel" class="form-control" name="telefono" id="register-phone" placeholder="Número de teléfono" pattern="[\d\s]{8,15}" required>
                 </div>
             </div>
+            <div id="register-alert" class="alert alert-danger" role="alert" style="display:none;"></div>
             <button type="submit" class="btn btn-success w-100">Crear Cuenta</button>
         </form>
 
@@ -188,7 +84,6 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- JavaScript to toggle between login and register forms -->
 <script>
     function showRegisterForm() {
         document.getElementById('login-form').style.display = 'none';
@@ -208,25 +103,101 @@
         document.getElementById('register-link').style.display = 'none';
     }
 
-    // Validación de formulario de registro
-    function validateRegisterForm() {
-        const password = document.getElementById('register-password').value;
-        const confirmPassword = document.getElementById('register-confirm-password').value;
+    function handleLogin(event) {
+        event.preventDefault();
+        const formData = new FormData(document.getElementById('login-form'));
 
-        // Validación de contraseñas
-        const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-        if (!passwordRegex.test(password)) {
-            alert('La contraseña debe tener al menos 8 caracteres, incluyendo un número, una letra mayúscula, una letra minúscula y un carácter especial.');
-            return false;
-        }
-
-        if (password !== confirmPassword) {
-            alert('Las contraseñas no coinciden.');
-            return false;
-        }
-
-        return true;
+        fetch('../Backend/auth.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = data.redirect;
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Hubo un problema en el servidor.');
+        });
     }
+
+    function handleRegister(event) {
+        event.preventDefault();
+        const formData = new FormData(document.getElementById('register-form'));
+
+        fetch('../Backend/auth.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('register-success').style.display = 'block'; // Mostrar mensaje de éxito
+                document.getElementById('register-alert').style.display = 'none'; // Ocultar alert de error
+                showLoginForm(); // Mostrar formulario de login tras registro
+            } else {
+                document.getElementById('register-alert').style.display = 'block';
+                document.getElementById('register-alert').innerText = data.message;
+                document.getElementById('register-success').style.display = 'none'; // Ocultar el mensaje de éxito
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Hubo un problema en el servidor.');
+        });
+    }
+
+    window.onload = function() {
+        const countrySelect = document.getElementById('register-country');
+        const phoneAddon = document.getElementById('phone-addon');
+
+        const allowedCountries = {
+            "GT": "Guatemala",
+            "AR": "Argentina",
+            "BR": "Brasil",
+            "CL": "Chile",
+            "CO": "Colombia",
+            "CR": "Costa Rica",
+            "CU": "Cuba",
+            "DO": "República Dominicana",
+            "EC": "Ecuador",
+            "SV": "El Salvador",
+            "ES": "España",
+            "MX": "México",
+            "PA": "Panamá",
+            "PE": "Perú",
+            "PR": "Puerto Rico",
+            "UY": "Uruguay",
+            "VE": "Venezuela",
+            "US": "Estados Unidos",
+            "GB": "Reino Unido"
+        };
+
+        for (const [code, country] of Object.entries(allowedCountries)) {
+            const option = document.createElement('option');
+            option.value = code;
+            option.text = country;
+            countrySelect.appendChild(option);
+        }
+
+        countrySelect.addEventListener('change', function() {
+            const selectedCountry = this.value;
+
+            fetch(`https://restcountries.com/v3.1/alpha/${selectedCountry}`)
+                .then(response => response.json())
+                .then(data => {
+                    let countryCode = `${data[0].idd.root}${data[0].idd.suffixes[0]}`;
+                    if (countryCode.startsWith('+')) {
+                        countryCode = countryCode.slice(1);
+                    }
+                    phoneAddon.textContent = `+${countryCode}`;
+                });
+        });
+    };
 </script>
 
 </body>
