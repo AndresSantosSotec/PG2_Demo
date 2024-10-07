@@ -22,6 +22,69 @@
         .pricing-table-features li {
             color: #000;
         }
+        .hero {
+            text-align: center;
+        }
+        /* Sidebar Style */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            right: 0;
+            background-color: #007DFF;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 25px;
+            color: #fff;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            color: #f1f1f1;
+        }
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+        }
+        .openbtn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #007DFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+        }
+        .openbtn:hover {
+            background-color: #005bb5;
+        }
+        .form-login {
+            padding: 15px;
+            color: white;
+        }
+        .form-login input {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+        .form-login button {
+            background-color: white;
+            color: #007DFF;
+            font-weight: bold;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="is-boxed has-animations">
@@ -52,6 +115,8 @@
                             </a>
                         </h1>
                     </div>
+                    <!-- Button to open the Sidebar -->
+                    <button class="openbtn" onclick="openNav()">Iniciar Sesión</button>
                 </div>
             </div>
         </header>
@@ -63,7 +128,9 @@
                         <div class="hero-copy">
                             <h1 class="hero-title h2-mobile mt-0 is-revealing">Automatiza tus Migraciones de Datos con IA</h1>
                             <p class="hero-paragraph is-revealing">Nuestra API permite automatizar migraciones de bases de datos de manera rápida y segura, minimizando pérdidas de datos y garantizando la calidad a través de inteligencia artificial avanzada.</p>
-                            <p class="hero-cta is-revealing"><a class="button button-primary button-shadow" href="#">Descubre nuestros planes</a></p>
+                            <p class="hero-cta is-revealing"><a class="button button-primary button-shadow" href="#pricing">Descubre nuestros planes</a></p>
+                            <br>
+                            <p class="hero-cta is-revealing"><a class="button button-primary button-shadow" href="Login.php">Probar Demo</a></p>
                         </div>
                         <div class="hero-illustration is-revealing">
                             <!-- Hero illustration content here -->
@@ -118,7 +185,7 @@
                 </div>
             </section>
 
-            <section class="pricing section">
+            <section id="pricing" class="pricing section">
                 <div class="section-square"></div>
                 <div class="container">
                     <div class="pricing-inner section-inner has-top-divider">
@@ -138,7 +205,7 @@
                                         </ul>
                                     </div>
                                     <div class="pricing-table-cta is-revealing">
-                                        <a class="button button-primary button-shadow button-block" href="#">Comenzar ahora</a>
+                                        <a class="button button-primary button-shadow button-block" href="login.html">Comenzar ahora</a>
                                     </div>
                                 </div>
                             </div>
@@ -156,7 +223,7 @@
                                         </ul>
                                     </div>
                                     <div class="pricing-table-cta is-revealing">
-                                        <a class="button button-primary button-shadow button-block" href="#">Comenzar ahora</a>
+                                        <a class="button button-primary button-shadow button-block" href="login.html">Comenzar ahora</a>
                                     </div>
                                 </div>
                             </div>
@@ -173,7 +240,7 @@
                                         </ul>
                                     </div>
                                     <div class="pricing-table-cta is-revealing">
-                                        <a class="button button-primary button-shadow button-block" href="#">Comenzar ahora</a>
+                                        <a class="button button-primary button-shadow button-block" href="login.html">Comenzar ahora</a>
                                     </div>
                                 </div>
                             </div>
@@ -225,6 +292,27 @@
             </div>
         </footer>
     </div>
+
+    <!-- Sidebar for Login -->
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+        <div class="form-login">
+            <h4>Iniciar Sesión</h4>
+            <input type="text" class="form-control" placeholder="Correo electrónico">
+            <input type="password" class="form-control" placeholder="Contraseña">
+            <button class="btn btn-light btn-block mt-2">Login</button>
+        </div>
+    </div>
+
+    <script>
+        function openNav() {
+            document.getElementById("mySidebar").style.width = "300px";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidebar").style.width = "0";
+        }
+    </script>
 
     <script src="../Assets/js/main.min.js"></script>
 </body>
