@@ -103,6 +103,7 @@
         document.getElementById('register-link').style.display = 'none';
     }
 
+    // Función para manejar el login
     function handleLogin(event) {
         event.preventDefault();
         const formData = new FormData(document.getElementById('login-form'));
@@ -114,6 +115,12 @@
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
+                // Guardar la API Key, usos restantes y el ID de usuario en sessionStorage
+                sessionStorage.setItem('api_key', data.api_key);
+                sessionStorage.setItem('usos_restantes', data.usos_restantes);
+                sessionStorage.setItem('usuario_id', data.usuario_id);
+
+                // Redirigir al dashboard
                 window.location.href = data.redirect;
             } else {
                 alert('Error: ' + data.message);
