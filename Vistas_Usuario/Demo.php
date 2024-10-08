@@ -17,106 +17,18 @@ if (isset($_GET['logout'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Demo - Struct Migraciones</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome -->
+    <!-- FontAwesome para iconos -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-            background-color: #f4f7fc;
-        }
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background: linear-gradient(135deg, #5B61C0, #7A72DC);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            transition: all 0.3s ease;
-            padding-top: 20px;
-        }
-        .sidebar a {
-            padding: 15px;
-            text-decoration: none;
-            color: white;
-            display: flex;
-            align-items: center;
-            font-weight: 600;
-            font-size: 16px;
-        }
-        .sidebar a i {
-            margin-right: 10px;
-        }
-        .sidebar a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        .sidebar h2 {
-            font-size: 22px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .sidebar.collapsed {
-            width: 70px;
-        }
-        .sidebar.collapsed a {
-            justify-content: center;
-            text-align: center;
-        }
-        .sidebar.collapsed a i {
-            margin-right: 0;
-        }
-        .toggle-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background-color: transparent;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: white;
-            outline: none;
-        }
-        .sidebar.collapsed .toggle-btn {
-            right: auto;
-            left: 20px;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex-grow: 1;
-            padding: 20px;
-        }
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card-header {
-            border-radius: 10px 10px 0 0;
-        }
-        .card-header.bg-primary {
-            background: linear-gradient(135deg, #5B61C0, #7A72DC);
-        }
-        .card-header.bg-success {
-            background: linear-gradient(135deg, #4CAF50, #66BB6A);
-        }
-    </style>
+    <link href="../Assets/css/D1.css" rel="stylesheet">
 </head>
 <body>
 
@@ -126,7 +38,7 @@ if (isset($_GET['logout'])) {
         <i class="fas fa-bars"></i>
     </button>
     <h2>Menú</h2>
-    <a href="demo.php"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="../Vistas_Usuario/Vistas/dashboard.php"><i class="fas fa-home"></i> Dashboard</a>
     <a href="demo.php?logout=true"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
 </div>
 
@@ -144,7 +56,7 @@ if (isset($_GET['logout'])) {
                     </div>
                     <div class="card-body">
                         <p>Accede a la demo interactiva de migraciones de datos.</p>
-                        <a href="#" class="btn btn-primary w-100">Ver Demo</a>
+                        <a href="../Vistas_Usuario/Vistas/dashboard.php" class="btn btn-primary w-100">Ver Demo</a>
                     </div>
                 </div>
             </div>
