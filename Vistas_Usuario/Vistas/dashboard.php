@@ -170,7 +170,7 @@
                     </div>
                     <div class="card-body">
                         <p>Sube los archivos que deseas migrar utilizando la API.</p>
-                        <a href="carga_datos.php" class="btn btn-success">Ir a Carga de Datos</a>
+                        <a href="./cargar.php" class="btn btn-success">Ir a Carga de Datos</a>
                     </div>
                 </div>
             </div>

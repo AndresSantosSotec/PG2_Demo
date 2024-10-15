@@ -109,7 +109,7 @@ try {
                 exit();
             }
 
-            // Verificar si el usuario existe
+            // Verificar si el usuario existe aqui ya avasamos un poco 
             $sql = "SELECT * FROM tb_users WHERE correo_electronico = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("s", $correo_electronico);

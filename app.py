@@ -4,7 +4,7 @@ import pandas as pd
 
 app = Flask(__name__)
 
-# Cargar el modelo entrenado
+# Cargar el modelo entrenadoasjlk
 modelo = joblib.load('modelo_migracion.pkl')
 
 @app.route('/predecir', methods=['POST'])
