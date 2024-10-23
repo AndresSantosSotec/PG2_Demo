@@ -1,3 +1,21 @@
+<?php
+// Iniciar la sesión
+session_start();
+
+// Verificar si el usuario está autenticado
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: ../login.php"); // Redirigir al login si no está autenticado
+    exit();
+}
+
+// Verificar si se hizo clic en "Cerrar Sesión"
+if (isset($_GET['logout'])) {
+    session_destroy(); // Destruir la sesión
+    header("Location: ../login.php"); // Redirigir al login
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -6,22 +24,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard API - Struct Migraciones</title>
 
-    <!-- Enlaces a Bootstrap CSS -->
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.1.3/dist/minty/bootstrap.min.css">
 
-    <!-- Enlace a Google Fonts -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
-    <!-- Enlace a FontAwesome para los íconos -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
         body {
             display: flex;
             height: 100vh;
-            overflow: hidden;
             font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
         }
 
         .sidebar {
@@ -86,57 +105,65 @@
 
         .main-content {
             flex-grow: 1;
-            padding: 20px;
-            background-color: #e5e9f0;
+            padding: 40px;
+            background-color: #e8edf3;
         }
 
-        .collapse-btn {
-            margin-bottom: 20px;
-            text-align: right;
-        }
-
-        .collapse-btn i {
-            font-size: 1.5rem;
-            color: #fff;
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #34495e;
         }
 
         .card {
             border: none;
             border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            cursor: pointer;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card-header i {
-            margin-right: 10px;
-            font-size: 1.5rem;
+            transform: translateY(-10px);
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
         }
 
         .card-header {
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
-            font-size: 1.25rem;
             font-weight: 600;
+            font-size: 1.25rem;
+            padding: 20px;
+        }
+
+        .card-body {
+            padding: 20px;
+            background-color: #ffffff;
+            color: #7f8c8d;
         }
 
         .bg-success {
-            background-color: #82e0aa !important;
+            background-color: #2ecc71 !important;
         }
 
         .bg-danger {
-            background-color: #f5b7b1 !important;
+            background-color: #e74c3c !important;
         }
 
         .bg-info {
-            background-color: #85c1e9 !important;
+            background-color: #3498db !important;
         }
 
         .bg-warning {
-            background-color: #f9e79f !important;
+            background-color: #f1c40f !important;
+        }
+
+        .card-title {
+            margin: 0;
+            color: white;
+        }
+
+        .card i {
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -145,84 +172,78 @@
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <button class="btn btn-sm collapse-btn" id="toggleSidebar">
+        <button class="btn btn-sm text-white mb-3" id="toggleSidebar">
             <i class="fas fa-bars"></i>
         </button>
         <h2>Menú</h2>
-        <a href="carga_datos.php"><i class="fas fa-upload"></i> <span>Carga de Datos</span></a>
+        <a href="cargar.php"><i class="fas fa-upload"></i> <span>Carga de Datos</span></a>
         <a href="migracion_datos.php"><i class="fas fa-exchange-alt"></i> <span>Migración de Datos</span></a>
         <a href="historial_migraciones.php"><i class="fas fa-history"></i> <span>Historial</span></a>
         <a href="reportes.php"><i class="fas fa-chart-line"></i> <span>Reportes</span></a>
-        <a href="?logout=true"><i class="fas fa-sign-out-alt"></i> <span>Cerrar Sesión</span></a>
+        <a href="dashboard.php?logout=true"><i class="fas fa-sign-out-alt"></i> <span>Cerrar Sesión</span></a>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <h1 class="text-center mb-4">Bienvenido al Dashboard de API</h1>
+        <h1>Bienvenido al Dashboard de API</h1>
 
         <div class="row">
-            <!-- Tarjeta para Carga de Datos -->
+            <!-- Carga de Datos -->
             <div class="col-lg-6 mb-4">
-                <div class="card">
-                    <div class="card-header bg-success text-white">
+                <div class="card" onclick="location.href='./cargar.php'">
+                    <div class="card-header bg-success">
                         <i class="fas fa-file-upload"></i>
-                        <h5 class="card-title d-inline">Carga de Datos</h5>
+                        <span class="card-title">Carga de Datos</span>
                     </div>
                     <div class="card-body">
                         <p>Sube los archivos que deseas migrar utilizando la API.</p>
-                        <a href="./cargar.php" class="btn btn-success">Ir a Carga de Datos</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Tarjeta para Migración de Datos -->
+            <!-- Migración de Datos -->
             <div class="col-lg-6 mb-4">
-                <div class="card">
-                    <div class="card-header bg-danger text-white">
+                <div class="card" onclick="location.href='migracion_datos.php'">
+                    <div class="card-header bg-danger">
                         <i class="fas fa-exchange-alt"></i>
-                        <h5 class="card-title d-inline">Migración de Datos</h5>
+                        <span class="card-title">Migración de Datos</span>
                     </div>
                     <div class="card-body">
                         <p>Realiza la migración de los datos cargados a la base de datos destino.</p>
-                        <a href="migracion_datos.php" class="btn btn-danger">Ir a Migración de Datos</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Tarjeta para Historial -->
+            <!-- Historial -->
             <div class="col-lg-6 mb-4">
-                <div class="card">
-                    <div class="card-header bg-info text-white">
+                <div class="card" onclick="location.href='historial_migraciones.php'">
+                    <div class="card-header bg-info">
                         <i class="fas fa-history"></i>
-                        <h5 class="card-title d-inline">Historial de Migraciones</h5>
+                        <span class="card-title">Historial de Migraciones</span>
                     </div>
                     <div class="card-body">
                         <p>Consulta el historial de migraciones realizadas con la API.</p>
-                        <a href="historial_migraciones.php" class="btn btn-info">Ver Historial</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Tarjeta para generar reportes -->
+            <!-- Reportes -->
             <div class="col-lg-6 mb-4">
-                <div class="card">
-                    <div class="card-header bg-warning text-dark">
+                <div class="card" onclick="location.href='reportes.php'">
+                    <div class="card-header bg-warning">
                         <i class="fas fa-chart-line"></i>
-                        <h5 class="card-title d-inline">Generar Reportes</h5>
+                        <span class="card-title">Generar Reportes</span>
                     </div>
                     <div class="card-body">
                         <p>Genera reportes detallados sobre las migraciones realizadas.</p>
-                        <a href="reportes.php" class="btn btn-warning">Generar Reporte</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script para colapsar el sidebar -->
     <script>
         const toggleSidebar = document.getElementById('toggleSidebar');
         const sidebar = document.getElementById('sidebar');
@@ -230,20 +251,6 @@
         toggleSidebar.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
         });
-    </script>
-
-    <!-- Cargar datos de API Key y usos desde sessionStorage -->
-    <script>
-        const apiKey = sessionStorage.getItem('api_key');
-        const usosRestantes = sessionStorage.getItem('usos_restantes');
-
-        if (apiKey && usosRestantes) {
-            document.getElementById('api-key').innerText = apiKey;
-            document.getElementById('api-usage').innerText = usosRestantes;
-        } else {
-            alert('No se encontraron datos de API Key, por favor inicia sesión de nuevo.');
-            window.location.href = 'login.php'; // Redirigir al login si no hay datos
-        }
     </script>
 
 </body>

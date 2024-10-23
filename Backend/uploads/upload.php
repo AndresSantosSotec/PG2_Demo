@@ -78,12 +78,19 @@ function excelToJson($filePath) {
     // Obtener la primera fila como encabezados de las columnas
     $header = array_shift($sheetData);
 
-    // Formatear las filas restantes con los encabezados como claves
+    // Normalizar los encabezados para reemplazar espacios y eliminar acentos
+    $normalizedHeader = array_map(function ($columnName) {
+        // Reemplaza espacios en blanco con guiones bajos y elimina acentos
+        $columnName = preg_replace('/\s+/', '_', trim($columnName));
+        return removeAccents($columnName);
+    }, $header);
+
+    // Formatear las filas restantes con los encabezados normalizados como claves
     $formattedData = [];
     foreach ($sheetData as $row) {
         $formattedRow = [];
-        foreach ($header as $columnKey => $columnName) {
-            $formattedRow[$columnName] = $row[$columnKey];
+        foreach ($normalizedHeader as $columnKey => $normalizedColumnName) {
+            $formattedRow[$normalizedColumnName] = $row[$columnKey] ?? ''; // Evita errores con campos vacíos
         }
         $formattedData[] = $formattedRow;
     }
@@ -97,3 +104,15 @@ function excelToJson($filePath) {
     // Retornamos el JSON generado
     return $json;
 }
+
+// Función para eliminar acentos y caracteres especiales
+function removeAccents($string) {
+    $unwantedArray = [
+        'á' => 'a', 'Á' => 'A', 'é' => 'e', 'É' => 'E',
+        'í' => 'i', 'Í' => 'I', 'ó' => 'o', 'Ó' => 'O',
+        'ú' => 'u', 'Ú' => 'U', 'ñ' => 'n', 'Ñ' => 'N',
+        'ü' => 'u', 'Ü' => 'U'
+    ];
+    return strtr($string, $unwantedArray);
+}
+?>

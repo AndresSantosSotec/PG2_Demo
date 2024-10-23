@@ -1,0 +1,36 @@
+body {
+    background-color: #f5f5f5;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    height: 100vh;
+}
+
+.wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #004d66;
+    color: white;
+    padding-top: 20px;
+}
+
+.content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.form-section {
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background-color: #009688;
+}
+
+.progress {
+    display: none;
+    margin-top: 20px;
+}
