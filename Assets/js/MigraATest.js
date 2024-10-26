@@ -11,7 +11,6 @@ const tableSection = document.getElementById('tableSection');
 const tableOption = document.getElementById('tableOption');
 const newTableNameSection = document.getElementById('newTableNameSection');
 const generateSQLBtn = document.getElementById('generateSQLBtn');
-
 // Lógica para subir archivo y convertir a JSON
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -48,7 +47,6 @@ form.addEventListener('submit', async (e) => {
         Swal.fire('Error', 'Error al procesar el archivo.', 'error');
     }
 });
-
 // Lógica para conectar al servidor y cargar bases de datos
 credentialsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -94,7 +92,6 @@ credentialsForm.addEventListener('submit', async (e) => {
         Swal.fire('Error', 'No se pudo conectar al servidor. Verifica las credenciales o la conexión.', 'error');
     }
 });
-
 // Mostrar opciones de tabla después de seleccionar base de datos
 originDbSelect.addEventListener('change', async () => {
     const selectedDb = originDbSelect.value;
@@ -118,15 +115,13 @@ originDbSelect.addEventListener('change', async () => {
         Swal.fire('Error', 'Hubo un problema al obtener las tablas.', 'error');
     }
 });
-
 // Mostrar campo para nombre de nueva tabla si se selecciona "Crear Nueva Tabla"
 tableOption.addEventListener('change', () => {
     const selectedValue = tableOption.value;
     newTableNameSection.style.display = selectedValue === 'create' ? 'block' : 'none';
     generateSQLBtn.style.display = selectedValue === 'create' ? 'block' : 'none';
 });
-
-// Limpieza de JSON y generación de tabla
+//genrar tablas BTN
 generateSQLBtn.addEventListener('click', async () => {
     const tableName = document.getElementById('newTableName').value.trim();
     if (!tableName) {
@@ -147,10 +142,10 @@ generateSQLBtn.addEventListener('click', async () => {
             return;
         }
 
-        const createTableSQL = generateCreateTableSQL(tableName, jsonData);
+        preprocessJSON(jsonData); // Preprocesar JSON
 
+        const createTableSQL = generateCreateTableSQL(tableName, jsonData);
         console.log('SQL generado:', createTableSQL);
-        console.log('Nombre de la tabla:', tableName);
 
         const confirmation = await Swal.fire({
             title: '¿Deseas ejecutar este SQL y migrar los datos?',
@@ -193,78 +188,139 @@ generateSQLBtn.addEventListener('click', async () => {
         Swal.fire('Error', 'Error al interpretar el JSON para la tabla.', 'error');
     }
 });
-
+// Generar SQL para la creación de tablas
 function generateCreateTableSQL(tableName, jsonData) {
     if (!tableName) {
         throw new Error('El nombre de la tabla es obligatorio y no puede estar vacío.');
     }
 
     let sql = `CREATE TABLE \`${tableName}\` (\n`;
+
+    // Agregar el campo 'id' como autoincrementable y clave primaria
+    sql += '  `id` INT AUTO_INCREMENT PRIMARY KEY,\n';
+
     const sample = jsonData[0];
 
     for (const [key, value] of Object.entries(sample)) {
-        const columnName = key.replace(/\s+/g, '_').replace(/[^\w]/g, '');
-        const dataType = inferDataType(value);
+        let columnName = sanitizeColumnName(key);
+
+        // Evitar duplicar la columna 'id' si ya existe en los datos
+        if (columnName.toLowerCase() === 'id') {
+            console.warn('El campo "id" ya está presente en los datos y será omitido.');
+            continue;
+        }
+
+        if (!columnName) {
+            console.warn(`Advertencia: El campo "${key}" tiene un nombre inválido. Se asignará un nombre por defecto.`);
+            columnName = `col_${Math.random().toString(36).substring(7)}`; // Nombre único por defecto
+        }
+
+        const dataType = inferDataType(key, value);
         sql += `  \`${columnName}\` ${dataType},\n`;
     }
 
+    // Eliminar la coma final y cerrar la instrucción SQL
     sql = sql.slice(0, -2) + '\n);';
     return sql;
 }
 
+// Función para sanitizar nombres de columnas
+function sanitizeColumnName(name) {
+    const sanitized = name.replace(/\s+/g, '_').replace(/[^\w]/g, '');
+    return sanitized || null; // Retorna null si el nombre es vacío
+}
 function formatDate(value) {
-    const parts = value.split('/');
-    if (parts.length === 3) {
-        if (parts[0].length === 4) {
-            // Formato YYYY/MM/DD
-            return value;
-        } else if (parseInt(parts[1], 10) <= 12) {
-            // Formato MM/DD/YYYY
-            return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
-        } else {
-            // Formato DD/MM/YYYY
-            return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-        }
+    const dateTimePattern = /^\d{2}[\/-]\d{2}[\/-]\d{4} \d{1,2}:\d{2}(:\d{2})?$/;
+    const datePattern1 = /^\d{4}[\/-]\d{2}[\/-]\d{2}$/; // YYYY-MM-DD o YYYY/MM/DD
+    const datePattern2 = /^\d{2}[\/-]\d{2}[\/-]\d{4}$/; // DD/MM/YYYY o MM/DD/YYYY
+
+    if (dateTimePattern.test(value)) {
+        const [datePart, timePart] = value.split(' ');
+        const date = parseDate(datePart);
+        const time = timePart.length === 5 ? `${timePart}:00` : timePart;
+        return `${date} ${time}`.trim();
+    } else if (datePattern1.test(value) || datePattern2.test(value)) {
+        return parseDate(value);
+    } else {
+        console.error(`Fecha no válida: "${value}". Almacenando como null.`);
+        return null;
     }
-    return value; // Si no es una fecha válida, devolver el valor original
+}
+
+// Función para parsear la fecha al formato YYYY-MM-DD
+function parseDate(value) {
+    const parts = value.split(/[\/-]/);
+    if (parts[0].length === 4) {
+        return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+    } else if (parseInt(parts[1], 10) <= 12) {
+        return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+    } else {
+        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    }
+}
+// Inferir tipo de dato con validaciones
+function inferDataType(key, value) {
+    const dateTimePattern = /^\d{2}[\/-]\d{2}[\/-]\d{4} \d{1,2}:\d{2}(:\d{2})?$/;
+    const datePattern = /^\d{4}[\/-]\d{2}[\/-]\d{2}$/;
+    const decimalPattern = /^-?\d+\.\d+$/;
+    const intPattern = /^-?\d+$/;
+
+    if (/telefono|phone/i.test(key)) {
+        return 'VARCHAR(20)'; // Asegurar siempre VARCHAR(20) para teléfonos
+    }
+
+    if (/nombre|name/i.test(key)) {
+        return 'VARCHAR(100)'; // Asegurar siempre VARCHAR(100) para nombres
+    }
+
+    if (/fecha|date|alta|nacimiento/i.test(key)) {
+        return dateTimePattern.test(value) ? 'DATETIME' : 'DATE';
+    }
+
+    if (decimalPattern.test(value)) {
+        return 'DECIMAL(10,2)';
+    }
+
+    if (intPattern.test(value)) {
+        return 'INT';
+    }
+
+    return 'VARCHAR(255)'; // Valor por defecto
 }
 
 
-function inferDataType(value) {
-    // Expresiones regulares para detectar formatos de fecha comunes
-    const patterns = [
-        /^\d{4}\/\d{2}\/\d{2}$/,  // YYYY/MM/DD
-        /^\d{2}\/\d{2}\/\d{4}$/,  // DD/MM/YYYY o MM/DD/YYYY (resolviendo la ambigüedad)
-    ];
+// Preprocesado del JSON con manejo avanzado de errores
+function preprocessJSON(jsonData) {
+    jsonData.forEach(row => {
+        for (let key in row) {
+            let value = row[key];
 
-    // Verificar si el valor coincide con alguno de los patrones de fecha
-    for (let pattern of patterns) {
-        if (pattern.test(value)) {
-            const parts = value.split('/');
-            if (parts[0].length === 4) {
-                // Si el primer valor es el año, asumimos YYYY/MM/DD
-                return 'DATE';
-            } else {
-                // Si el primer valor es día o mes, verificamos si es un valor válido
-                const month = parseInt(parts[1], 10);
-                if (month >= 1 && month <= 12) {
-                    return 'DATE';
+            if (typeof value === 'string') {
+                value = value.trim();
+            }
+
+            if (typeof value === 'string' && /[\/-]/.test(value)) {
+                const formattedDate = formatDate(value);
+                if (formattedDate === null) {
+                    console.error(`Fecha inválida en campo "${key}": ${value}`);
+                }
+                row[key] = formattedDate;
+            }
+
+            if (/nombre|name/i.test(key)) {
+                row[key] = value.replace(/[^a-zA-Z\s\-@#_]/g, '');
+                console.log(`Nombre procesado: "${row[key]}"`);
+            }
+
+            if (/telefono|phone/i.test(key)) {
+                row[key] = value.replace(/[^0-9\(\)\-\s]/g, '');
+                if (!/^\(\d{3}\)\s\d{3}-\d{4}$/.test(row[key])) {
+                    console.warn(`Teléfono inválido en campo "${key}": ${value}`);
                 }
             }
         }
-    }
-
-    // Si es un número entero
-    if (!isNaN(value) && Number.isInteger(parseFloat(value))) return 'INT';
-
-    // Si es una cadena corta (menos de 50 caracteres)
-    if (typeof value === 'string' && value.length <= 50) return 'VARCHAR(50)';
-
-    // Valor por defecto
-    return 'VARCHAR(255)';
+    });
 }
-
-
 // Mostrar JSON formateado en la interfaz
 function displayFormattedJSON(data) {
     jsonDataDiv.innerHTML = '';
@@ -289,12 +345,10 @@ function setupDownloadLink(jsonData, fileName) {
     convertedFileLink.href = url;
     convertedFileLink.download = fileName;
 }
-
 // Llenar el dropdown de bases de datos
 function populateDatabases(databases) {
     originDbSelect.innerHTML = databases.map(db => `<option value="${db}">${db}</option>`).join('');
 }
-
 // Llenar el dropdown de tablas existentes
 function populateTables(tables) {
     tableOption.innerHTML = `

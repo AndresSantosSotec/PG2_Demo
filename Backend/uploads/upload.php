@@ -1,111 +1,118 @@
 <?php
-// Cargar PhpSpreadsheet (asegúrate de que autoload.php esté en la ubicación correcta)
 require '../../vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 header('Content-Type: application/json');
 
-// Iniciamos un array para almacenar la respuesta
 $response = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Verificamos si el archivo fue enviado y si no hubo errores en la subida
     if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
-        // Obtenemos la ruta temporal del archivo
         $fileTmpPath = $_FILES['file']['tmp_name'];
         $fileName = $_FILES['file']['name'];
         $fileType = pathinfo($fileName, PATHINFO_EXTENSION);
 
-        // Verificamos si el archivo es Excel o JSON
         if ($fileType === 'xlsx' || $fileType === 'xls') {
-            // Llamamos a la función para convertir el archivo Excel a JSON
             $jsonData = excelToJson($fileTmpPath);
 
-            // Generamos el nombre del archivo JSON a partir del nombre original del archivo Excel
             $jsonFileName = pathinfo($fileName, PATHINFO_FILENAME) . '.json';
             $jsonFilePath = '../uploads/' . $jsonFileName;
 
-            // Guardamos el archivo JSON generado en el servidor
             if (file_put_contents($jsonFilePath, $jsonData)) {
-                // Si se guarda correctamente, preparamos la respuesta
                 $response = [
                     'success' => true,
                     'fileName' => $jsonFileName,
                     'fileUrl' => $jsonFilePath,
-                    'jsonData' => $jsonData // Enviamos los datos JSON generados para mostrarlos
+                    'jsonData' => $jsonData
                 ];
             } else {
-                // Si ocurre un error al guardar el archivo JSON
-                $response = [
-                    'success' => false,
-                    'message' => 'Error al guardar el archivo JSON en el servidor.'
-                ];
+                $response = ['success' => false, 'message' => 'Error al guardar el archivo JSON en el servidor.'];
             }
         } else {
-            // Si el archivo no es un archivo Excel válido
-            $response = [
-                'success' => false,
-                'message' => 'Por favor, sube un archivo Excel válido (xlsx o xls).'
-            ];
+            $response = ['success' => false, 'message' => 'Por favor, sube un archivo Excel válido (xlsx o xls).'];
         }
     } else {
-        // Si ocurre un error al subir el archivo
-        $response = [
-            'success' => false,
-            'message' => 'Error al subir el archivo. Por favor, intenta nuevamente.'
-        ];
+        $response = ['success' => false, 'message' => 'Error al subir el archivo. Por favor, intenta nuevamente.'];
     }
 } else {
-    // Si la solicitud no es POST
-    $response = [
-        'success' => false,
-        'message' => 'Método de solicitud no válido.'
-    ];
+    $response = ['success' => false, 'message' => 'Método de solicitud no válido.'];
 }
 
-// Enviamos la respuesta en formato JSON
-echo json_encode($response, JSON_UNESCAPED_UNICODE);  // Asegura que se manejen correctamente los caracteres especiales
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
 
-// Función para convertir un archivo Excel a formato JSON
 function excelToJson($filePath) {
-    // Cargamos el archivo Excel utilizando PhpSpreadsheet
     $spreadsheet = IOFactory::load($filePath);
-    
-    // Convertimos el contenido de la hoja de cálculo activa a un array
     $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
 
-    // Obtener la primera fila como encabezados de las columnas
     $header = array_shift($sheetData);
 
-    // Normalizar los encabezados para reemplazar espacios y eliminar acentos
     $normalizedHeader = array_map(function ($columnName) {
-        // Reemplaza espacios en blanco con guiones bajos y elimina acentos
-        $columnName = preg_replace('/\s+/', '_', trim($columnName));
-        return removeAccents($columnName);
+        return removeAccents(preg_replace('/\s+/', '_', trim($columnName)));
     }, $header);
 
-    // Formatear las filas restantes con los encabezados normalizados como claves
     $formattedData = [];
     foreach ($sheetData as $row) {
         $formattedRow = [];
         foreach ($normalizedHeader as $columnKey => $normalizedColumnName) {
-            $formattedRow[$normalizedColumnName] = $row[$columnKey] ?? ''; // Evita errores con campos vacíos
+            $value = $row[$columnKey] ?? '';
+
+            // Ignorar el ID (será autoincrementado en la base de datos)
+            if (preg_match('/^id_/i', $normalizedColumnName) || strtolower($normalizedColumnName) === 'id') {
+                continue; // Omitir este campo del JSON
+            }
+
+            // Validar si es un campo de fecha y convertir a formato DD-MM-YYYY
+            if (isDateField($normalizedColumnName) && validateDate($value)) {
+                $value = convertToDMY($value);
+            }
+
+            // Detectar códigos alfanuméricos
+            if (isCodeField($normalizedColumnName)) {
+                $value = (string) $value;
+            }
+
+            // Procesar números con comas correctamente
+            if (is_string($value) && preg_match('/^-?\d{1,3}(,\d{3})*(\.\d+)?\s*$/', $value)) {
+                $value = str_replace(',', '', trim($value));
+            }
+
+            // Convertir solo valores numéricos
+            if (is_numeric($value)) {
+                $value = number_format((float) $value, 2, '.', '');
+            }
+
+            $formattedRow[$normalizedColumnName] = $value;
         }
         $formattedData[] = $formattedRow;
     }
 
-    // Convertimos el array a formato JSON, asegurando que no se escapen los caracteres especiales
     $json = json_encode($formattedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
-    // Asegurarnos de que las fechas no tengan '\/'
-    $json = str_replace('\/', '/', $json);
-
-    // Retornamos el JSON generado
-    return $json;
+    return str_replace('\/', '/', $json);
 }
 
-// Función para eliminar acentos y caracteres especiales
+// Validar si el campo es relacionado con fechas
+function isDateField($fieldName) {
+    return preg_match('/fecha|date|nacimiento|alta|creacion|modificacion/i', $fieldName);
+}
+
+// Convertir fecha al formato DD-MM-YYYY
+function convertToDMY($date) {
+    $timestamp = strtotime($date);
+    return date('d-m-Y', $timestamp);
+}
+
+// Validar si la fecha está en formato aceptado (YYYY-MM-DD)
+function validateDate($date) {
+    return preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) && strtotime($date) !== false;
+}
+
+// Detectar si el campo es un código alfanumérico
+function isCodeField($fieldName) {
+    return preg_match('/codigo|code|pedido/i', $fieldName);
+}
+
+// Remover acentos de los nombres de columnas
 function removeAccents($string) {
     $unwantedArray = [
         'á' => 'a', 'Á' => 'A', 'é' => 'e', 'É' => 'E',
