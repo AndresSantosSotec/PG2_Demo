@@ -1,6 +1,22 @@
 <?php
 // Iniciar la sesión
 session_start();
+
+// Verificar si la sesión tiene los datos necesarios, si no redirigir al login
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// Función para cerrar sesión
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header("Location: login.php");
+    exit();
+}
+
+// Obtener el usuario_id de la sesión
+$usuario_id = $_SESSION['usuario_id'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -82,10 +98,18 @@ session_start();
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!--<script src="../../Assets/js/MigraA.js"></script>-->
     <script src="../../Assets/js/MigraATest.js"></script>
+    <script src="../../Assets/js/cache.js"></script>
+
+    <script>
+        // Pasar el ID del usuario de PHP a JavaScript
+        const usuarioId = <?php echo json_encode($usuario_id); ?>;
+        console.log("ID de Usuario:", usuarioId);
+    </script>
 </body>
 
 </html>

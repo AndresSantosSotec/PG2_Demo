@@ -2,6 +2,11 @@
 // Iniciar la sesión
 session_start();
 
+// Asegurar la persistencia correcta de la sesión
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: ../login.php"); // Redirigir al login si no está autenticado
@@ -15,7 +20,6 @@ if (isset($_GET['logout'])) {
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -32,139 +36,9 @@ if (isset($_GET['logout'])) {
 
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
+    <link rel="stylesheet" href="../../Assets/css/ds.css">
     <style>
-        body {
-            display: flex;
-            height: 100vh;
-            font-family: 'Poppins', sans-serif;
-            background-color: #f5f7fa;
-            margin: 0;
-            padding: 0;
-        }
 
-        .sidebar {
-            width: 250px;
-            background: #2f3640;
-            color: #f5f6fa;
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-            transition: all 0.3s ease;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar.collapsed {
-            width: 80px;
-        }
-
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #ddd;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar.collapsed h2 {
-            opacity: 0;
-        }
-
-        .sidebar a {
-            padding: 15px;
-            margin-bottom: 10px;
-            text-decoration: none;
-            color: #f5f6fa;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .sidebar a i {
-            margin-right: 15px;
-            font-size: 1.2rem;
-        }
-
-        .sidebar.collapsed a {
-            justify-content: center;
-        }
-
-        .sidebar.collapsed a i {
-            margin-right: 0;
-        }
-
-        .sidebar.collapsed a span {
-            display: none;
-        }
-
-        .sidebar a:hover {
-            background-color: #576574;
-            color: #fff;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            padding: 40px;
-            background-color: #e8edf3;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 40px;
-            color: #34495e;
-        }
-
-        .card {
-            border: none;
-            border-radius: 15px;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .card-header {
-            font-weight: 600;
-            font-size: 1.25rem;
-            padding: 20px;
-        }
-
-        .card-body {
-            padding: 20px;
-            background-color: #ffffff;
-            color: #7f8c8d;
-        }
-
-        .bg-success {
-            background-color: #2ecc71 !important;
-        }
-
-        .bg-danger {
-            background-color: #e74c3c !important;
-        }
-
-        .bg-info {
-            background-color: #3498db !important;
-        }
-
-        .bg-warning {
-            background-color: #f1c40f !important;
-        }
-
-        .card-title {
-            margin: 0;
-            color: white;
-        }
-
-        .card i {
-            margin-right: 10px;
-        }
     </style>
 </head>
 
@@ -210,9 +84,11 @@ if (isset($_GET['logout'])) {
                     </div>
                     <div class="card-body">
                         <p>Realiza la migración de los datos cargados a la base de datos destino.</p>
+                        <hr>
                     </div>
                 </div>
             </div>
+
 
             <!-- Historial -->
             <div class="col-lg-6 mb-4">
@@ -240,19 +116,33 @@ if (isset($_GET['logout'])) {
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            
+        </script>
+        
 
-    <script>
-        const toggleSidebar = document.getElementById('toggleSidebar');
-        const sidebar = document.getElementById('sidebar');
+        <!-- JavaScript para Mostrar la API Key y Usos Restantes -->
+        <script>
+            // Cargar datos de la sesión PHP en los elementos HTML
+            document.addEventListener('DOMContentLoaded', function() {
+                const apiKey = "<?php echo $_SESSION['api_key'] ?? 'No disponible'; ?>";
+                const usosRestantes = "<?php echo $_SESSION['usos_restantes'] ?? 'No disponible'; ?>";
 
-        toggleSidebar.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-        });
-    </script>
+                // Asignar los valores a los elementos del DOM
+                document.getElementById('api-key').innerText = apiKey;
+                document.getElementById('usos-restantes').innerText = usosRestantes;
+            });
 
+            // Lógica para colapsar la sidebar
+            const toggleSidebar = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+
+            toggleSidebar.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+        </script>
 </body>
 
 </html>

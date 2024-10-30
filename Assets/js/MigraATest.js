@@ -223,7 +223,58 @@ function generateCreateTableSQL(tableName, jsonData) {
     sql = sql.slice(0, -2) + '\n);';
     return sql;
 }
+//Logica para caprurar los logs de la migracion de la base de datos 
+async function insertarDatosConLogs(jsonData, tableName, migracionId) {
+    const ip = document.getElementById('ip').value.trim();
+    const user = document.getElementById('user').value.trim();
+    const password = document.getElementById('password').value || '';
+    const database = originDbSelect.value;
 
+    try {
+        const response = await fetch('../../Backend/create_table.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sql: '', 
+                jsonData,
+                tableName,
+                ip,
+                user,
+                password,
+                database,
+                migracionId
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            console.log('Inserciones completadas. Logs:');
+            result.logs.forEach(log => console.log(`Registro #${log.index}: ${log.message}`));
+        } else {
+            console.error('Error en la migración:', result.message);
+        }
+    } catch (error) {
+        console.error('Error al procesar la migración:', error);
+    }
+}
+//logia para la realizacion de los logs de las migraciones en bd
+async function registrarLog(migracionId, mensaje) {
+    try {
+        const response = await fetch('../../Backend/log_migracion.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ migracionId, mensaje })
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+            console.error('Error al registrar log:', result.message);
+        }
+    } catch (error) {
+        console.error('Error en la solicitud del log:', error);
+    }
+}
 // Función para sanitizar nombres de columnas
 function sanitizeColumnName(name) {
     const sanitized = name.replace(/\s+/g, '_').replace(/[^\w]/g, '');
