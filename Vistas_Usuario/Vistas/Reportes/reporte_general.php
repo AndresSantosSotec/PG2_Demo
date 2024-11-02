@@ -54,18 +54,12 @@ if (!$stmt->execute()) {
 
 $result = $stmt->get_result();
 
-// Función para descargar CSV
-if (isset($_POST['descargar_csv'])) {
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="reporte_general.csv"');
-
-    $output = fopen('php://output', 'w');
-    fputcsv($output, ['ID Migración', 'Usuario', 'Archivo Origen', 'Estado', 'Fecha Inicio', 'Fecha Fin', 'Duración (s)', 'Total Logs']);
-
-    while ($row = $result->fetch_assoc()) {
-        fputcsv($output, $row);
-    }
-    fclose($output);
+// Depuración: Verificar el resultado de la consulta
+if ($result->num_rows === 0) {
+    echo "No hay migraciones registradas para este usuario.";
+} else {
+    echo "Resultados obtenidos: ";
+    var_dump($result->fetch_assoc());
     exit();
 }
 ?>

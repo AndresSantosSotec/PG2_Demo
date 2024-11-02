@@ -1,21 +1,25 @@
 body {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
     font-family: 'Poppins', sans-serif;
     background-color: #f5f7fa;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
 }
 
 .sidebar {
     width: 250px;
-    background: #2f3640;
+    background: #1e272e;
     color: #f5f6fa;
     display: flex;
     flex-direction: column;
-    padding: 15px;
-    transition: all 0.3s ease;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: width 0.3s ease;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+    position: fixed;
+    height: 100vh;
+    z-index: 1;
 }
 
 .sidebar.collapsed {
@@ -25,7 +29,8 @@ body {
 .sidebar h2 {
     text-align: center;
     margin-bottom: 20px;
-    color: #ddd;
+    color: #f7d794;
+    font-weight: bold;
     transition: opacity 0.3s ease;
 }
 
@@ -34,20 +39,20 @@ body {
 }
 
 .sidebar a {
-    padding: 15px;
-    margin-bottom: 10px;
+    padding: 12px 15px;
+    margin-bottom: 15px;
     text-decoration: none;
-    color: #f5f6fa;
+    color: #d1ccc0;
     font-weight: 500;
     display: flex;
     align-items: center;
-    border-radius: 5px;
+    border-radius: 8px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .sidebar a i {
-    margin-right: 15px;
-    font-size: 1.2rem;
+    margin-right: 10px;
+    font-size: 1.25rem;
 }
 
 .sidebar.collapsed a {
@@ -68,35 +73,43 @@ body {
 }
 
 .main-content {
-    flex-grow: 1;
+    margin-left: 250px;
     padding: 40px;
-    background-color: #e8edf3;
+    background-color: #f5f7fa;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.collapsed ~ .main-content {
+    margin-left: 80px;
 }
 
 h1 {
     text-align: center;
     margin-bottom: 40px;
-    color: #34495e;
+    color: #2c3e50;
+    font-size: 1.75rem;
 }
 
 .card {
     border: none;
-    border-radius: 15px;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     cursor: pointer;
+    margin-bottom: 20px;
 }
 
 .card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-8px);
+    box-shadow: 0px 8px 18px rgba(0, 0, 0, 0.2);
 }
 
 .card-header {
     font-weight: 600;
     font-size: 1.25rem;
     padding: 20px;
+    color: white;
 }
 
 .card-body {
@@ -106,19 +119,19 @@ h1 {
 }
 
 .bg-success {
-    background-color: #2ecc71 !important;
+    background-color: #27ae60 !important;
 }
 
 .bg-danger {
-    background-color: #e74c3c !important;
+    background-color: #c0392b !important;
 }
 
 .bg-info {
-    background-color: #3498db !important;
+    background-color: #2980b9 !important;
 }
 
 .bg-warning {
-    background-color: #f1c40f !important;
+    background-color: #f39c12 !important;
 }
 
 .card-title {
@@ -128,4 +141,48 @@ h1 {
 
 .card i {
     margin-right: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 80px;
+    }
+
+    .sidebar h2 {
+        display: none;
+    }
+
+    .sidebar a span {
+        display: none;
+    }
+
+    .main-content {
+        margin-left: 80px;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .sidebar {
+        position: relative;
+        height: auto;
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 10px;
+    }
+
+    .sidebar.collapsed {
+        width: 100%;
+    }
 }

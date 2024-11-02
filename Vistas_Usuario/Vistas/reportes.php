@@ -40,16 +40,6 @@ if (!isset($_SESSION['usuario_id'])) {
         <h1 class="text-center mb-4">Dashboard de Reportes</h1>
         <div class="container">
             <div class="row g-4">
-                <!-- Reporte General -->
-                <div class="col-md-6 col-lg-4">
-                    <div class="card text-center bg-primary text-white" onclick="location.href='../../Vistas_Usuario/Vistas/Reportes/reporte_general.php'">
-                        <div class="card-body">
-                            <i class="fas fa-list-alt card-icon mb-3"></i>
-                            <h5 class="card-title">Reporte General de Migraciones</h5>
-                            <p class="card-text">Resumen de todas las migraciones realizadas.</p>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Reporte por Usuario -->
                 <div class="col-md-6 col-lg-4">
